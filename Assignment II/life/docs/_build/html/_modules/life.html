@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>life &mdash; Life  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Life
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">code</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Life</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">life</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for life</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">life.py </span>
+
+<span class="sd">A simple Python/matplotlib implementation of Conway&#39;s Game of Life.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
+<span class="kn">import</span> <span class="nn">matplotlib.animation</span> <span class="k">as</span> <span class="nn">animation</span>
+
+<span class="n">ON</span> <span class="o">=</span> <span class="mi">255</span>
+<span class="n">OFF</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">ON</span><span class="p">,</span> <span class="n">OFF</span><span class="p">]</span>
+
+<div class="viewcode-block" id="randomGrid">
+<a class="viewcode-back" href="../life.html#life.randomGrid">[docs]</a>
+<span class="k">def</span> <span class="nf">randomGrid</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;returns a grid of NxN random values&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="addGlider">
+<a class="viewcode-back" href="../life.html#life.addGlider">[docs]</a>
+<span class="k">def</span> <span class="nf">addGlider</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;adds a glider with top left cell at (i, j)&quot;&quot;&quot;</span>
+    <span class="n">glider</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> 
+                       <span class="p">[</span><span class="mi">255</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> 
+                       <span class="p">[</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">]])</span>
+    <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">glider</span></div>
+
+
+<div class="viewcode-block" id="addGosperGliderGun">
+<a class="viewcode-back" href="../life.html#life.addGosperGliderGun">[docs]</a>
+<span class="k">def</span> <span class="nf">addGosperGliderGun</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;adds a Gosper Glider Gun with top left cell at (i, j)&quot;&quot;&quot;</span>
+    <span class="n">gun</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">11</span><span class="o">*</span><span class="mi">38</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">38</span><span class="p">)</span>
+
+    <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+
+    <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">18</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">9</span><span class="p">][</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">9</span><span class="p">][</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+
+    <span class="n">gun</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">21</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">21</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">21</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+
+    <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">35</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">36</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">35</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">36</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+
+    <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">11</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="mi">38</span><span class="p">]</span> <span class="o">=</span> <span class="n">gun</span></div>
+
+
+<div class="viewcode-block" id="update">
+<a class="viewcode-back" href="../life.html#life.update">[docs]</a>
+<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">frameNum</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="c1"># copy grid since we require 8 neighbors for calculation</span>
+    <span class="c1"># and we go line by line </span>
+    <span class="n">newGrid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="c1"># compute 8-neghbor sum</span>
+            <span class="c1"># using toroidal boundary conditions - x and y wrap around </span>
+            <span class="c1"># so that the simulaton takes place on a toroidal surface.</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">]</span> <span class="o">+</span> 
+                         <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> 
+                         <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">]</span> <span class="o">+</span> 
+                         <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">]</span> <span class="o">+</span> <span class="n">grid</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="n">N</span><span class="p">])</span><span class="o">/</span><span class="mi">255</span><span class="p">)</span>
+            <span class="c1"># apply Conway&#39;s rules</span>
+            <span class="k">if</span> <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>  <span class="o">==</span> <span class="n">ON</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">total</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">total</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">newGrid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">OFF</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">newGrid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ON</span>
+    <span class="c1"># update data</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">newGrid</span><span class="p">)</span>
+    <span class="n">grid</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">newGrid</span><span class="p">[:]</span>
+    <span class="k">return</span> <span class="n">img</span><span class="p">,</span></div>
+
+
+<span class="c1"># main() function</span>
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../life.html#life.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Command line args are in sys.argv[1], sys.argv[2] ..</span>
+    <span class="c1"># sys.argv[0] is the script name itself and can be ignored</span>
+    <span class="c1"># parse arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Runs Conway&#39;s Game of Life simulation.&quot;</span><span class="p">)</span>
+  <span class="c1"># add arguments</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--grid-size&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--mov-file&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;movfile&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--interval&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;interval&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--glider&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--gosper&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    
+    <span class="c1"># set grid size</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">N</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        
+    <span class="c1"># set animation update interval</span>
+    <span class="n">updateInterval</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">:</span>
+        <span class="n">updateInterval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">interval</span><span class="p">)</span>
+
+    <span class="c1"># declare grid</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="c1"># check if &quot;glider&quot; demo flag is specified</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">glider</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">addGlider</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">gosper</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">addGosperGliderGun</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># populate grid with random on/off - more off than on</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">randomGrid</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="c1"># set up animation</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+    <span class="n">ani</span> <span class="o">=</span> <span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">update</span><span class="p">,</span> <span class="n">fargs</span><span class="o">=</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="p">),</span>
+                                  <span class="n">frames</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                                  <span class="n">interval</span><span class="o">=</span><span class="n">updateInterval</span><span class="p">,</span>
+                                  <span class="n">save_count</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+    <span class="c1"># # of frames? </span>
+    <span class="c1"># set output file</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">movfile</span><span class="p">:</span>
+        <span class="n">ani</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">movfile</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-vcodec&#39;</span><span class="p">,</span> <span class="s1">&#39;libx264&#39;</span><span class="p">])</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<span class="c1"># call main</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Samuel Greenberg, Can Kupeli, Marcus Jakobsson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

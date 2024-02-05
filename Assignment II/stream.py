@@ -35,7 +35,7 @@ def stream_benchmark(a, b, c, scalar: float):
         b[i] = scalar * c[i]
     times[1] = timer() - times[1]
 
-    # sum
+    # add
     times[2] = timer()
     for i in range(STREAM_ARRAY_SIZE):
         c[i] = a[i] + b[i]
@@ -47,7 +47,7 @@ def stream_benchmark(a, b, c, scalar: float):
         a[i] = b[i] + scalar * c[i]
     times[3] = timer() - times[3]
 
-    return times[0], times[1], times[2], times[3]
+    return times[0], times[2], times[1], times[3]
 
 def compute_moved_data():
     size = 0
