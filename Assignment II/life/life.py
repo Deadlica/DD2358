@@ -1,10 +1,8 @@
 """
 life.py 
-
 A simple Python/matplotlib implementation of Conway's Game of Life.
 """
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
+
 import sys, argparse
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -13,22 +11,18 @@ import matplotlib.animation as animation
 ON = 255
 OFF = 0
 vals = [ON, OFF]
-@profile
+
 def randomGrid(N):
     """returns a grid of NxN random values"""
     return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
-    #grid=np.random.binomial(1, 0.2, (N, N))
-    #return np.where(grid == 1, ON, OFF)
-    #return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
-    
-@profile
+
 def addGlider(i, j, grid):
     """adds a glider with top left cell at (i, j)"""
     glider = np.array([[0,    0, 255], 
                        [255,  0, 255], 
                        [0,  255, 255]])
     grid[i:i+3, j:j+3] = glider
-@profile
+
 def addGosperGliderGun(i, j, grid):
     """adds a Gosper Glider Gun with top left cell at (i, j)"""
     gun = np.zeros(11*38).reshape(11, 38)
@@ -57,7 +51,6 @@ def addGosperGliderGun(i, j, grid):
 
     grid[i:i+11, j:j+38] = gun
 
-@profile
 def update(frameNum, img, grid, N):
     # copy grid since we require 8 neighbors for calculation
     # and we go line by line 
@@ -84,8 +77,7 @@ def update(frameNum, img, grid, N):
     return img,
 
 # main() function
-@profile
-def main(N):
+def main():
     # Command line args are in sys.argv[1], sys.argv[2] ..
     # sys.argv[0] is the script name itself and can be ignored
     # parse arguments
@@ -97,11 +89,12 @@ def main(N):
     parser.add_argument('--glider', action='store_true', required=False)
     parser.add_argument('--gosper', action='store_true', required=False)
     args = parser.parse_args()
-    
+
     # set grid size
+    N = 100
     if args.N and int(args.N) > 8:
         N = int(args.N)
-        
+
     # set animation update interval
     updateInterval = 50
     if args.interval:
@@ -135,31 +128,6 @@ def main(N):
 
     plt.show()
 
-
-def execution ():
-    times = []
-    interval = list(range(10,1010,10))
-    for i in interval:
-        start = timer()
-        main(i)
-        duration = timer() - start
-        times.append(duration)
-    return (times, interval)
-            
-            
-            
-def plot_data(times, intervals):
-    plt.plot(intervals, times, marker='o')
-    plt.title('Execution time in correlation with grid size')
-    plt.xlabel('Grid size (N)')
-    plt.ylabel('Execution time (s)')
-    plt.grid(True)
-    plt.show()    
-    
 # call main
 if __name__ == '__main__':
-    
-    #times, interval = execution()
-    #plot_data(times,interval)
-    main(100)
-
+    main()
