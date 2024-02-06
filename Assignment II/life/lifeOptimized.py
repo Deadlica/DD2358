@@ -13,19 +13,19 @@ import matplotlib.animation as animation
 ON = 255
 OFF = 0
 vals = [ON, OFF]
-#@profile
 def randomGrid(N):
     """returns a grid of NxN random values"""
     return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
     
-#@profile
+
 def addGlider(i, j, grid):
     """adds a glider with top left cell at (i, j)"""
     glider = np.array([[0,    0, 255], 
                        [255,  0, 255], 
                        [0,  255, 255]])
     grid[i:i+3, j:j+3] = glider
-##@profile
+
+
 def addGosperGliderGun(i, j, grid):
     """adds a Gosper Glider Gun with top left cell at (i, j)"""
     gun = np.zeros(11*38).reshape(11, 38)
@@ -54,54 +54,28 @@ def addGosperGliderGun(i, j, grid):
 
     grid[i:i+11, j:j+38] = gun
 
-#@profile
+
 def update(frameNum, img, grid, N):
     # copy grid since we require 8 neighbors for calculation
     # and we go line by line 
-    newGrid = grid.copy()
-    """for i in range(N):
-        for j in range(N):
-            # compute 8-neghbor sum
-            # using toroidal boundary conditions - x and y wrap around 
-            # so that the simulaton takes place on a toroidal surface. 
-            total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] + 
-                         grid[(i-1)%N, j] + grid[(i+1)%N, j] + 
-                         grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] + 
-                         grid[(i+1)%N, (j-1)%N] + grid[(i+1)%N, (j+1)%N])/255)
-            # apply Conway's rules
-            if grid[i, j]  == ON:
-                if (total < 2) or (total > 3):
-                    newGrid[i, j] = OFF
-            else:
-                if total == 3:
-                    newGrid[i, j] = ON"""
+    
+    # counts neighbour for each cell
     N = (grid[0:-2, 0:-2] + grid[0:-2, 1:-1] + grid[0:-2, 2:] +
          grid[1:-1, 0:-2]                    + grid[1:-1, 2:] +
          grid[2:  , 0:-2] + grid[2:  , 1:-1] + grid[2:  , 2:])
    
-    birth = (N == 3) & (grid[1:-1, 1:-1] == OFF)
-    survive = ((N == 2) | (N == 3)) & (grid[1:-1, 1:-1] == ON)
-    grid[...] = 0
+    # computes all alive cells for next time step
+    birth = (N == 3*255) & (grid[1:-1, 1:-1] == OFF)
+    survive = ((N == 2*255) | (N == 3*255)) & (grid[1:-1, 1:-1] == ON)
+
+    # updates grid
+    grid[...] = OFF
     grid[1:-1, 1:-1][birth | survive] = ON
-    newGrid[grid==ON] = ON
     
-    """
-    N[1:-1,1:-1] += (grid[ :-2, :-2] + grid[ :-2,1:-1] + grid[ :-2,2:]+
-                    grid[1:-1, :-2]                   + grid[1:-1,2:]+
-                    grid[2:  , :-2] + grid[2:  ,1:-1] + grid[2:  ,2:])
-    birth = (N==3) & (newGrid[1:-1,1:-1]==OFF)
-    survive = ((N==2) | (N==3))[1:-1,1:-1] & (newGrid[1:-1,1:-1]==ON)
-    newGrid[...] = ON
-    newGrid[1:-1,1:-1][survive] = OFF
-    newGrid[1:-1,1:-1][birth] = ON """
-    
-    
-    img.set_data(newGrid)
-    grid[:] = newGrid[:]
+    img.set_data(grid)
     return img,
 
-# main() function
-#@profile
+
 def main(N):
     # Command line args are in sys.argv[1], sys.argv[2] ..
     # sys.argv[0] is the script name itself and can be ignored
@@ -138,10 +112,8 @@ def main(N):
         grid = randomGrid(N)
 
     # set up animation
-    print(grid)
     fig, ax = plt.subplots()
     img = ax.imshow(grid, interpolation='nearest')
-    #update(0, img, grid, N)
     ani = animation.FuncAnimation(fig, update, fargs=(img, grid, N, ),
                                   frames = 10,
                                   interval=updateInterval,
@@ -155,9 +127,5 @@ def main(N):
     plt.show()
 
 
-
-    
-# call main
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(100)
-
