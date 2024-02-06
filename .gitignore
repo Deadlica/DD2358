@@ -3,3 +3,4 @@ __pycache__/
 makefile
 .pytest_cache/
 *.png
+*.lprof

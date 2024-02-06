@@ -13,22 +13,19 @@ import matplotlib.animation as animation
 ON = 255
 OFF = 0
 vals = [ON, OFF]
-@profile
+#@profile
 def randomGrid(N):
     """returns a grid of NxN random values"""
     return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
-    #grid=np.random.binomial(1, 0.2, (N, N))
-    #return np.where(grid == 1, ON, OFF)
-    #return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
     
-@profile
+#@profile
 def addGlider(i, j, grid):
     """adds a glider with top left cell at (i, j)"""
     glider = np.array([[0,    0, 255], 
                        [255,  0, 255], 
                        [0,  255, 255]])
     grid[i:i+3, j:j+3] = glider
-@profile
+##@profile
 def addGosperGliderGun(i, j, grid):
     """adds a Gosper Glider Gun with top left cell at (i, j)"""
     gun = np.zeros(11*38).reshape(11, 38)
@@ -57,16 +54,16 @@ def addGosperGliderGun(i, j, grid):
 
     grid[i:i+11, j:j+38] = gun
 
-@profile
+#@profile
 def update(frameNum, img, grid, N):
     # copy grid since we require 8 neighbors for calculation
     # and we go line by line 
     newGrid = grid.copy()
-    for i in range(N):
+    """for i in range(N):
         for j in range(N):
             # compute 8-neghbor sum
             # using toroidal boundary conditions - x and y wrap around 
-            # so that the simulaton takes place on a toroidal surface.
+            # so that the simulaton takes place on a toroidal surface. 
             total = int((grid[i, (j-1)%N] + grid[i, (j+1)%N] + 
                          grid[(i-1)%N, j] + grid[(i+1)%N, j] + 
                          grid[(i-1)%N, (j-1)%N] + grid[(i-1)%N, (j+1)%N] + 
@@ -77,14 +74,34 @@ def update(frameNum, img, grid, N):
                     newGrid[i, j] = OFF
             else:
                 if total == 3:
-                    newGrid[i, j] = ON
-    # update data
+                    newGrid[i, j] = ON"""
+    N = (grid[0:-2, 0:-2] + grid[0:-2, 1:-1] + grid[0:-2, 2:] +
+         grid[1:-1, 0:-2]                    + grid[1:-1, 2:] +
+         grid[2:  , 0:-2] + grid[2:  , 1:-1] + grid[2:  , 2:])
+   
+    birth = (N == 3) & (grid[1:-1, 1:-1] == OFF)
+    survive = ((N == 2) | (N == 3)) & (grid[1:-1, 1:-1] == ON)
+    grid[...] = 0
+    grid[1:-1, 1:-1][birth | survive] = ON
+    newGrid[grid==ON] = ON
+    
+    """
+    N[1:-1,1:-1] += (grid[ :-2, :-2] + grid[ :-2,1:-1] + grid[ :-2,2:]+
+                    grid[1:-1, :-2]                   + grid[1:-1,2:]+
+                    grid[2:  , :-2] + grid[2:  ,1:-1] + grid[2:  ,2:])
+    birth = (N==3) & (newGrid[1:-1,1:-1]==OFF)
+    survive = ((N==2) | (N==3))[1:-1,1:-1] & (newGrid[1:-1,1:-1]==ON)
+    newGrid[...] = ON
+    newGrid[1:-1,1:-1][survive] = OFF
+    newGrid[1:-1,1:-1][birth] = ON """
+    
+    
     img.set_data(newGrid)
     grid[:] = newGrid[:]
     return img,
 
 # main() function
-@profile
+#@profile
 def main(N):
     # Command line args are in sys.argv[1], sys.argv[2] ..
     # sys.argv[0] is the script name itself and can be ignored
@@ -121,8 +138,10 @@ def main(N):
         grid = randomGrid(N)
 
     # set up animation
+    print(grid)
     fig, ax = plt.subplots()
     img = ax.imshow(grid, interpolation='nearest')
+    #update(0, img, grid, N)
     ani = animation.FuncAnimation(fig, update, fargs=(img, grid, N, ),
                                   frames = 10,
                                   interval=updateInterval,
@@ -136,30 +155,9 @@ def main(N):
     plt.show()
 
 
-def execution ():
-    times = []
-    interval = list(range(10,1010,10))
-    for i in interval:
-        start = timer()
-        main(i)
-        duration = timer() - start
-        times.append(duration)
-    return (times, interval)
-            
-            
-            
-def plot_data(times, intervals):
-    plt.plot(intervals, times, marker='o')
-    plt.title('Execution time in correlation with grid size')
-    plt.xlabel('Grid size (N)')
-    plt.ylabel('Execution time (s)')
-    plt.grid(True)
-    plt.show()    
+
     
 # call main
 if __name__ == '__main__':
-    
-    #times, interval = execution()
-    #plot_data(times,interval)
     main(100)
 

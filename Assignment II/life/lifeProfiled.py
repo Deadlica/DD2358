@@ -17,9 +17,6 @@ vals = [ON, OFF]
 def randomGrid(N):
     """returns a grid of NxN random values"""
     return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
-    #grid=np.random.binomial(1, 0.2, (N, N))
-    #return np.where(grid == 1, ON, OFF)
-    #return np.random.choice(vals, N*N, p=[0.2, 0.8]).reshape(N, N)
     
 @profile
 def addGlider(i, j, grid):
@@ -58,7 +55,7 @@ def addGosperGliderGun(i, j, grid):
     grid[i:i+11, j:j+38] = gun
 
 @profile
-def update(frameNum, img, grid, N):
+def update(grid, N):
     # copy grid since we require 8 neighbors for calculation
     # and we go line by line 
     newGrid = grid.copy()
@@ -79,9 +76,8 @@ def update(frameNum, img, grid, N):
                 if total == 3:
                     newGrid[i, j] = ON
     # update data
-    img.set_data(newGrid)
     grid[:] = newGrid[:]
-    return img,
+     
 
 # main() function
 @profile
@@ -120,46 +116,10 @@ def main(N):
         # populate grid with random on/off - more off than on
         grid = randomGrid(N)
 
-    # set up animation
-    fig, ax = plt.subplots()
-    img = ax.imshow(grid, interpolation='nearest')
-    ani = animation.FuncAnimation(fig, update, fargs=(img, grid, N, ),
-                                  frames = 10,
-                                  interval=updateInterval,
-                                  save_count=50)
-
-    # # of frames? 
-    # set output file
-    if args.movfile:
-        ani.save(args.movfile, fps=30, extra_args=['-vcodec', 'libx264'])
-
-    plt.show()
+    update(grid, N)
 
 
-def execution ():
-    times = []
-    interval = list(range(10,1010,10))
-    for i in interval:
-        start = timer()
-        main(i)
-        duration = timer() - start
-        times.append(duration)
-    return (times, interval)
-            
-            
-            
-def plot_data(times, intervals):
-    plt.plot(intervals, times, marker='o')
-    plt.title('Execution time in correlation with grid size')
-    plt.xlabel('Grid size (N)')
-    plt.ylabel('Execution time (s)')
-    plt.grid(True)
-    plt.show()    
     
 # call main
 if __name__ == '__main__':
-    
-    #times, interval = execution()
-    #plot_data(times,interval)
     main(100)
-
