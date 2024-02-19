@@ -82,11 +82,11 @@ if __name__ == "__main__":
             vals = init_lists()
         elif sys.argv[1] == "array":
             vals = init_arrays()
-        a = vals[0]
-        b = vals[1]
-        c = vals[2]
+        a = memoryview(np.array(vals[0], dtype=np.float32))
+        b = memoryview(np.array(vals[1], dtype=np.float32))
+        c = memoryview(np.array(vals[2], dtype=np.float32))
         scalar = 2.0
-        t_copy, t_add, t_scale, t_triad = stream_benchmark(a, b, c, scalar)
+        t_copy, t_add, t_scale, t_triad = cython_stream.stream_benchmark(a, b, c, scalar)
         m_copy, m_add, m_scale, m_triad = compute_moved_data()
         copy_bw[i] = m_copy / t_copy
         add_bw[i] = m_add / t_add
