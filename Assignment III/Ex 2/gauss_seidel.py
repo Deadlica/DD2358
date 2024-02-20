@@ -49,7 +49,6 @@ if __name__ == "__main__":
         start = timer()
         for i in range(iterations):
             f = cythonfn.gauss_seidel_func(f, matrix_size)
-        print("Size: " + str(matrix_size) + " x " + str(matrix_size))
         time_measurements.append(timer() - start)
     
     plot_perf(N, time_measurements)
