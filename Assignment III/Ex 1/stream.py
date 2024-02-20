@@ -1,4 +1,3 @@
-#cython: boundscheck=False
 from timeit import default_timer as timer
 from array import array
 import matplotlib.pyplot as plt
@@ -6,16 +5,16 @@ import numpy as np
 import sys
 import cython_stream
 
-cdef unsigned int STREAM_ARRAY_SIZE = 1000
-cdef char STREAM_ARRAY_TYPE = "f"
-cdef unsigned int TESTS = 4
+STREAM_ARRAY_SIZE = 1000
+STREAM_ARRAY_TYPE = "f"
+TESTS = 4
 
 def init_lists():
     a = [1.0 for _ in range(STREAM_ARRAY_SIZE)]
     b = [2.0 for _ in range(STREAM_ARRAY_SIZE)]
     c = [0.0 for _ in range(STREAM_ARRAY_SIZE)]
     return [a, b, c]
-    
+
 def init_arrays():
     lists = init_lists()
     a = array(STREAM_ARRAY_TYPE, lists[0])
@@ -23,56 +22,44 @@ def init_arrays():
     c = array(STREAM_ARRAY_TYPE, lists[2])
     return [a, b, c]
 
-# cython_stream.pyx
-cdef (double, double, double, double) stream_benchmark(double[:] a, double[:] b, double[:] c, double scalar) nogil:
-    cdef :
-        unsigned int i
-        double times[3]
+def stream_benchmark(a, b, c, scalar: float):
+    times = [0.0 for _ in range(4)]
     # copy
-    with gil:
-        times[0] = timer()
+    times[0] = timer()
     for i in range(STREAM_ARRAY_SIZE):
         c[i] = a [i]
-    with gil:
-        times[0] = timer() - times[0]
+    times[0] = timer() - times[0]
 
     # scale
-    with gil:
-        times[1] = timer()
+    times[1] = timer()
     for i in range(STREAM_ARRAY_SIZE):
         b[i] = scalar * c[i]
-    with gil:
-        times[1] = timer() - times[1]
+    times[1] = timer() - times[1]
 
     # add
-    with gil:
-        times[2] = timer()
+    times[2] = timer()
     for i in range(STREAM_ARRAY_SIZE):
         c[i] = a[i] + b[i]
-    with gil:
-        times[2] = timer() - times[2]
+    times[2] = timer() - times[2]
 
     # triad
-    with gil:
-        times[3] = timer()
+    times[3] = timer()
     for i in range(STREAM_ARRAY_SIZE):
         a[i] = b[i] + scalar * c[i]
-    with gil:
-        times[3] = timer() - times[3]
+    times[3] = timer() - times[3]
 
     return times[0], times[2], times[1], times[3]
 
-cdef (unsigned int, unsigned int, unsigned int, unsigned int) compute_moved_data() nogil:
-    cdef unsigned int size = 0
+def compute_moved_data():
+    size = 0
     if STREAM_ARRAY_TYPE == "f":
         size = 4
     elif STREAM_ARRAY_TYPE == "d":
         size = 8
-    cdef: 
-        unsigned int copy = 2 * size  * STREAM_ARRAY_SIZE
-        unsigned int add = 2 * size  * STREAM_ARRAY_SIZE
-        unsigned int scale = 3 * size  * STREAM_ARRAY_SIZE
-        unsigned int triad = 3 * size  * STREAM_ARRAY_SIZE
+    copy = 2 * size  * STREAM_ARRAY_SIZE
+    add = 2 * size  * STREAM_ARRAY_SIZE
+    scale = 3 * size  * STREAM_ARRAY_SIZE
+    triad = 3 * size  * STREAM_ARRAY_SIZE
     return copy, add, scale, triad
 
 if __name__ == "__main__":
@@ -95,11 +82,11 @@ if __name__ == "__main__":
             vals = init_lists()
         elif sys.argv[1] == "array":
             vals = init_arrays()
-        a = vals[0]
-        b = vals[1]
-        c = vals[2]
+        a = memoryview(np.array(vals[0], dtype=np.float32))
+        b = memoryview(np.array(vals[1], dtype=np.float32))
+        c = memoryview(np.array(vals[2], dtype=np.float32))
         scalar = 2.0
-        t_copy, t_add, t_scale, t_triad = stream_benchmark(a, b, c, scalar)
+        t_copy, t_add, t_scale, t_triad = cython_stream.stream_benchmark(a, b, c, scalar)
         m_copy, m_add, m_scale, m_triad = compute_moved_data()
         copy_bw[i] = m_copy / t_copy
         add_bw[i] = m_add / t_add
