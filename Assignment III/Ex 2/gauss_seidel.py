@@ -24,9 +24,23 @@ def plot_perf(data, time):
     plt.show()
 
 
+def get_measurements(N, iterations):
+    time_measurements = []
+    for matrix_size in N:
+        f = np.random.rand(matrix_size, matrix_size)
+        f[0, :] = f[-1, :] = f[:, 0] = f[:, -1] = 0.0
+
+        start = timer()
+        for i in range(iterations):
+            f = gauss_seidel_func(f, matrix_size)
+        time_measurements.append(timer() - start)
+
+    return time_measurements
+
+
 if __name__ == "__main__":
-    iterations = 1000
-    N = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    iterations = 10
+    N = [1000, 2000, 3000, 4000, 5000]
     time_measurements = []
     for matrix_size in N:
         f = np.random.rand(matrix_size,matrix_size)
@@ -35,6 +49,7 @@ if __name__ == "__main__":
         start = timer()
         for i in range(iterations):
             f = cythonfn.gauss_seidel_func(f, matrix_size)
+        print("Size: " + str(matrix_size) + " x " + str(matrix_size))
         time_measurements.append(timer() - start)
     
     plot_perf(N, time_measurements)
