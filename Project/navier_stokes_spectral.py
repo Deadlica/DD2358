@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from timeit import default_timer as timer
 """
 Simulate the Navier-Stokes equations (incompressible viscous fluid) 
 with a Spectral method
@@ -17,13 +17,11 @@ def poisson_solve( rho, kSq_inv ):
 	V = np.real(np.fft.ifftn(V_hat))
 	return V
 
-
 def diffusion_solve( v, dt, nu, kSq ):
 	""" solve the diffusion equation over a timestep dt, given viscosity nu """
 	v_hat = (np.fft.fftn( v )) / (1.0+dt*nu*kSq)
 	v = np.real(np.fft.ifftn(v_hat))
 	return v
-
 
 def grad(v, kx, ky):
 	""" return gradient of v """
@@ -32,13 +30,11 @@ def grad(v, kx, ky):
 	dvy = np.real(np.fft.ifftn( 1j*ky * v_hat))
 	return dvx, dvy
 
-
 def div(vx, vy, kx, ky):
 	""" return divergence of (vx,vy) """
 	dvx_x = np.real(np.fft.ifftn( 1j*kx * np.fft.fftn(vx)))
 	dvy_y = np.real(np.fft.ifftn( 1j*ky * np.fft.fftn(vy)))
 	return dvx_x + dvy_y
-
 
 def curl(vx, vy, kx, ky):
 	""" return curl of (vx,vy) """
@@ -46,24 +42,21 @@ def curl(vx, vy, kx, ky):
 	dvy_x = np.real(np.fft.ifftn( 1j*kx * np.fft.fftn(vy)))
 	return dvy_x - dvx_y
 
-
 def apply_dealias(f, dealias):
 	""" apply 2/3 rule dealias to field f """
 	f_hat = dealias * np.fft.fftn(f)
 	return np.real(np.fft.ifftn( f_hat ))
 
-
-def main():
+def main(N = 400, t = 0, tEnd = 1, dt = 0.001, tOut = 0.01, nu = 0.001, plotRealTime = False):
 	""" Navier-Stokes Simulation """
-	
 	# Simulation parameters
-	N         = 400     # Spatial resolution
-	t         = 0       # current time of the simulation
-	tEnd      = 1       # time at which simulation ends
-	dt        = 0.001   # timestep
-	tOut      = 0.01    # draw frequency
-	nu        = 0.001   # viscosity
-	plotRealTime = True # switch on for plotting as the simulation goes along
+	# N            = Spatial resolution
+	# t            = Current time of the simulation
+	# tEnd         = Time at which simulation ends
+	# dt           = Timestep
+	# tOut         = Draw frequency
+	# nu           = Viscosity
+	# plotRealTime = Switch on for plotting as the simulation goes along
 	
 	# Domain [0,1] x [0,1]
 	L = 1    
@@ -92,7 +85,7 @@ def main():
 	Nt = int(np.ceil(tEnd/dt))
 	
 	# prep figure
-	fig = plt.figure(figsize=(4,4), dpi=80)
+	#fig = plt.figure(figsize=(4,4), dpi=80)
 	outputCount = 1
 	
 	#Main Loop
@@ -129,7 +122,7 @@ def main():
 		
 		# update time
 		t += dt
-		print(t)
+		#print(t)
 		
 		# plot in real time
 		plotThisTurn = False
@@ -137,21 +130,21 @@ def main():
 			plotThisTurn = True
 		if (plotRealTime and plotThisTurn) or (i == Nt-1):
 			
-			plt.cla()
-			plt.imshow(wz, cmap = 'RdBu')
-			plt.clim(-20,20)
-			ax = plt.gca()
-			ax.invert_yaxis()
-			ax.get_xaxis().set_visible(False)
-			ax.get_yaxis().set_visible(False)	
-			ax.set_aspect('equal')	
-			plt.pause(0.001)
+			#plt.cla()
+			#plt.imshow(wz, cmap = "RdBu")
+			#plt.clim(-20,20)
+			#ax = plt.gca()
+			#ax.invert_yaxis()
+			#ax.get_xaxis().set_visible(False)
+			#ax.get_yaxis().set_visible(False)	
+			#ax.set_aspect("equal")	
+			#plt.pause(0.001)
 			outputCount += 1
 			
 			
 	# Save figure
-	plt.savefig('navier-stokes-spectral.png',dpi=240)
-	plt.show()
+	#plt.savefig("navier-stokes-spectral.png",dpi=240)
+	#plt.show()
 	
 	return 0
 	
