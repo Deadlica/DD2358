@@ -1,4 +1,8 @@
-import navier_stokes_spectral as nss
+# Uncomment the solution you want to test
+# import navier_stokes_spectral as nss
+# import Cython_Optimize.navier_stokes_spectral as nss
+import Cupy_Optimize.navier_stokes_spectral as nss
+
 import matplotlib.pyplot as plt
 import sys
 import statistics as stat
@@ -11,13 +15,10 @@ param_name = {
     "nu" : "Viscosity",
 }
 
-#figure, axis = plt.subplots(3, 1)
-
 def get_measurements(param: str, args: list):
     times = []
     for val in args:
         for _ in range(ITERS):
-            print("param: "+param+", Value: "+str(val))
             start = 0.0
             match param:
                 case "N":
@@ -75,9 +76,9 @@ def plot(x: list, y: list, std: list, param: str):
 if __name__ == "__main__":
     cli_args = []
     arg_vals = {}
-    arg_vals["N"] = [100, 200, 300, 400, 500, 600,700,800,900,1000]
-    arg_vals["dt"] = [0.001, 0.002, 0.003, 0.004, 0.005 ,0.006,0.007,0.008,0.009,0.01]
-    arg_vals["nu"] = [0.001, 0.002, 0.003, 0.004, 0.005,0.006,0.007,0.008,0.009,0.01 ]
+    arg_vals["N"]  = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    arg_vals["dt"] = [0.001, 0.002, 0.003, 0.004, 0.005 , 0.006, 0.007, 0.008, 0.009, 0.01]
+    arg_vals["nu"] = [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
 
     if len(sys.argv) == 1:
         cli_args = ["N", "dt", "nu"]
