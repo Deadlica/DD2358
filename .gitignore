@@ -4,3 +4,7 @@ makefile
 .pytest_cache/
 *.png
 *.lprof
+*.so
+Project/*.html
+*.c
+build/
