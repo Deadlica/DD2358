@@ -2,9 +2,6 @@ cimport cython
 cimport numpy as cnp
 import numpy as np
 import pyfftw
-# Initialisera pyFFTW för att använda alla tillgängliga trådar
-pyfftw.interfaces.cache.enable()
-pyfftw.config.NUM_THREADS = pyfftw.detect_number_of_threads()
 
 """"
 cnp.import_array()
@@ -22,8 +19,10 @@ cdef cnp.ndarray poisson_solve(cnp.ndarray[floatAll, ndim=2] rho, cnp.ndarray[fl
 @cython.wraparound(False)
 def poisson_solve3(cnp.ndarray[double, ndim=2] rho, cnp.ndarray[double, ndim=2] kSq_inv):
 	cdef:
-		cnp.ndarray[cnp.complex128_t, ndim=2] V_hat = -np.fft.fftn(rho) * kSq_inv
-		cnp.ndarray[cnp.complex128_t, ndim=2] V_org = np.fft.ifftn(V_hat)
+		cnp.ndarray[cnp.complex128_t, ndim=2] V_hat = -pyfftw.interfaces.numpy_fft.fftn(rho) * kSq_inv
+		cnp.ndarray[cnp.complex128_t, ndim=2] V_org = pyfftw.interfaces.numpy_fft.ifft(V_hat)
+		#cnp.ndarray[cnp.complex128_t, ndim=2] V_hat = -np.fft.fftn(rho) * kSq_inv
+		#cnp.ndarray[cnp.complex128_t, ndim=2] V_org = np.fft.ifftn(V_hat)
 		int i, j
 		int x = rho.shape[0]
 		int y = rho.shape[1]
@@ -54,29 +53,3 @@ def diffusion_solve(cnp.ndarray[double, ndim=2] v, float dt, float nu, cnp.ndarr
 
 
 
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def poisson_solve2(cnp.ndarray[cnp.float64_t, ndim=2] rho, cnp.ndarray[cnp.float64_t, ndim=2] kSq_inv):
-	cdef int x = rho.shape[0]
-	cdef int y = rho.shape[1]
-
-	rho_aligned = pyfftw.empty_aligned((x, y), dtype='complex128')
-	V_hat_aligned = pyfftw.empty_aligned((x, y), dtype='complex128')
-
-	rho_aligned[:] = rho.astype('complex128')
-
-	fft_plan = pyfftw.FFTW(rho_aligned, V_hat_aligned, direction='FFTW_FORWARD')
-	ifft_plan = pyfftw.FFTW(V_hat_aligned, rho_aligned, direction='FFTW_BACKWARD')
-
-	fft_plan()
-	V_hat_aligned *= -kSq_inv
-	ifft_plan()
-
-	cdef cnp.ndarray[cnp.float64_t, ndim=2] V_real = np.empty((x, y), dtype=np.float64)
-
-	for i in range(x):
-		for j in range(y):
-			V_real[i, j] = rho_aligned[i, j].real
-
-	return V_real

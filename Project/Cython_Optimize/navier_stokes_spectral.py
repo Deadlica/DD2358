@@ -110,7 +110,7 @@ def main(N = 400, t = 0, tEnd = 1, dt = 0.001, tOut = 0.01, nu = 0.001, plotReal
 		
 		# Poisson solve for pressure
 		div_rhs = div(rhs_x, rhs_y, kx, ky)
-		P = NSS.poisson_solve2( div_rhs, kSq_inv )
+		P = NSS.poisson_solve3( div_rhs, kSq_inv )
 
 	
 
