@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import navier_stokes_spectral as NSS
+import unittest as un
 """
 Simulate the Navier-Stokes equations (incompressible viscous fluid) 
 with a Spectral method
@@ -10,6 +11,45 @@ v_t + (v.nabla) v = nu * nabla^2 v + nabla P
 div(v) = 0
 
 """
+
+def poisson_solve( rho, kSq_inv ):
+	""" solve the Poisson equation, given source field rho """
+    
+	V_hat = -(np.fft.fftn( rho )) * kSq_inv
+	V = np.real(np.fft.ifftn(V_hat))
+ 
+	return V
+
+def diffusion_solve( v, dt, nu, kSq ):
+	""" solve the diffusion equation over a timestep dt, given viscosity nu """
+	v_hat = (np.fft.fftn( v )) / (1.0+dt*nu*kSq)
+	v = np.real(np.fft.ifftn(v_hat))
+	return v
+
+def grad(v, kx, ky):
+	""" return gradient of v """
+	v_hat = np.fft.fftn(v)
+	dvx = np.real(np.fft.ifftn( 1j*kx * v_hat))
+	dvy = np.real(np.fft.ifftn( 1j*ky * v_hat))
+	return dvx, dvy
+
+def div(vx, vy, kx, ky):
+	""" return divergence of (vx,vy) """
+	dvx_x = np.real(np.fft.ifftn( 1j*kx * np.fft.fftn(vx)))
+	dvy_y = np.real(np.fft.ifftn( 1j*ky * np.fft.fftn(vy)))
+	return dvx_x + dvy_y
+
+def curl(vx, vy, kx, ky):
+	""" return curl of (vx,vy) """
+	dvx_y = np.real(np.fft.ifftn( 1j*ky * np.fft.fftn(vx)))
+	dvy_x = np.real(np.fft.ifftn( 1j*kx * np.fft.fftn(vy)))
+	return dvy_x - dvx_y
+
+def apply_dealias(f, dealias):
+	""" apply 2/3 rule dealias to field f """
+	f_hat = dealias * np.fft.fftn(f)
+	return np.real(np.fft.ifftn( f_hat ))
+
 
 def main(N = 400, t = 0, tEnd = 1, dt = 0.001, tOut = 0.01, nu = 0.001, plotRealTime = False):
 	""" Navier-Stokes Simulation """
@@ -56,22 +96,25 @@ def main(N = 400, t = 0, tEnd = 1, dt = 0.001, tOut = 0.01, nu = 0.001, plotReal
 	for i in range(Nt):
 
 		# Advection: rhs = -(v.grad)v
-		dvx_x, dvx_y = NSS.grad(vx, kx, ky)
-		dvy_x, dvy_y = NSS.grad(vy, kx, ky)
+		dvx_x, dvx_y = grad(vx, kx, ky)
+		dvy_x, dvy_y = grad(vy, kx, ky)
 		
 		rhs_x = -(vx * dvx_x + vy * dvx_y)
 		rhs_y = -(vx * dvy_x + vy * dvy_y)
 		
-		rhs_x = NSS.apply_dealias(rhs_x, dealias)
-		rhs_y = NSS.apply_dealias(rhs_y, dealias)
+		rhs_x = apply_dealias(rhs_x, dealias)
+		rhs_y = apply_dealias(rhs_y, dealias)
 
 		vx += dt * rhs_x
 		vy += dt * rhs_y
 		
 		# Poisson solve for pressure
-		div_rhs = NSS.div(rhs_x, rhs_y, kx, ky)
-		P = NSS.poisson_solve( div_rhs, kSq_inv )
-		dPx, dPy = NSS.grad(P, kx, ky)
+		div_rhs = div(rhs_x, rhs_y, kx, ky)
+		P = NSS.poisson_solve2( div_rhs, kSq_inv )
+
+	
+
+		dPx, dPy = grad(P, kx, ky)
 		
 		# Correction (to eliminate divergence component of velocity)
 		vx += - dt * dPx
@@ -79,10 +122,10 @@ def main(N = 400, t = 0, tEnd = 1, dt = 0.001, tOut = 0.01, nu = 0.001, plotReal
 		
 		# Diffusion solve (implicit)
 		vx = NSS.diffusion_solve( vx, dt, nu, kSq )
-		vy = NSS.diffusion_solve( vy, dt, nu, kSq )
+		vy = diffusion_solve( vy, dt, nu, kSq )
 		
 		# vorticity (for plotting)
-		wz = NSS.curl(vx, vy, kx, ky)
+		wz = curl(vx, vy, kx, ky)
 		
 		# update time
 		t += dt
