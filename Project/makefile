@@ -1,5 +1,5 @@
-default:
-	python3 execution_perf.py default
+numpy:
+	python3 execution_perf.py numpy
 
 cupy:
 	python3 execution_perf.py cupy
@@ -18,3 +18,8 @@ nu:
 
 requirements:
 	pip install -r requirements.txt
+
+.PHONY: docs
+
+docs:
+	cd docs && make html

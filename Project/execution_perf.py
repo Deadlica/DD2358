@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # If it was, then vary all parameters with the selected module
     elif len(sys.argv) == 2:
         match sys.argv[1]:
-            case "default":
+            case "numpy":
                 module_path = "navier_stokes_spectral"
                 cli_args = ["N", "dt", "nu"]
                 args_done = True

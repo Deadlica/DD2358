@@ -1,10 +1,8 @@
-import unittest
-import sys
+#import sys
 import numpy as np
-sys.path.append('../') 
-import Cython_Optimize.navier_stokes_spectral as nss
-import Orgin_navier_stokes_spectral as original_nss
-class TestFluidDynamicsSolvers(unittest.TestCase):
+#sys.path.append('../') 
+#import Orgin_navier_stokes_spectral as original_nss
+class TestFluidDynamicsSolversNumpy():
 
     def setUp(self):
         self.N = 64
@@ -37,32 +35,4 @@ class TestFluidDynamicsSolvers(unittest.TestCase):
         self.vx += self.dt * self.rhs_x
         self.vy += self.dt * self.rhs_y
 
-    def test_poisson_solve(self):
-        expected_ans = original_nss.poisson_solve(self.rho, self.kSq_inv)
-        print(expected_ans)
-        optimized_ans = nss.NSS.poisson_solve3(self.rho, self.kSq_inv)
-        #self.assertTrue(np.allclose(expected_ans, optimized_ans))
-"""
-    def test_diffusion_solve(self):
-        expected_ans = original_nss.diffusion_solve(self.vx, self.dt, self.nu, self.kSq)
-        optimized_ans = nss.diffusion_solve(self.vx, self.dt, self.nu, self.kSq)
-        self.assertTrue(np.allclose(expected_ans, optimized_ans))
 
-    def test_curl_solve(self):
-        expected_ans = original_nss.curl(self.vx, self.vy, self.kx, self.ky)
-        optimized_ans = nss.curl(self.vx, self.vy, self.kx, self.ky)
-        self.assertTrue(np.allclose(expected_ans, optimized_ans))
-
-    def test_div_solve(self):
-            expected_ans = original_nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
-            optimized_ans = nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
-            self.assertTrue(np.allclose(expected_ans, optimized_ans))
-
-    def test_grad_solve(self):
-            expected_ans = original_nss.grad(self.P, self.kx, self.ky)
-            optimized_ans = nss.grad(self.P, self.kx, self.ky)
-            self.assertTrue(np.allclose(expected_ans, optimized_ans))
-"""
-
-if __name__ == '__main__':
-    unittest.main()
