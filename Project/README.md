@@ -22,17 +22,17 @@ time-step, and **nu**, the viscosity.
 The following technologies have been tested and are required to run the project:
 - Python 3.11.7 or newer
 - Pip 24.0 or newer
-- GNU Make 4.4.1 (Only neccesary if you to run with make commands)
+- GNU Make 4.4.1 (Only neccesary if you want to run with make commands)
 
-`Note: older version might work but we have not tested these.`
+`Note: older version might work however, they have not been tested.`
 
 Once you have the necessary dependencies you can install all the required python modules with the following make command:
 ```bash
-$ make requirements
+make requirements
 ```
 or without make
 ```bash
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Documentation
@@ -40,22 +40,22 @@ Extensive documentation can be found at https://deadlica.github.io/DD2358/
 
 If you would like to generate new documentation pages make sure to install the required theme:
 ```bash
-$ pip install sphinx rtd_sphinx_theme
+pip install sphinx rtd_sphinx_theme
 ```
 and thereafter simply run:
 ```bash
-$ make docs
+make docs
 ```
 from the root directory.
 
 `Note: this step requires Make since Sphinx themselves use make commands to generate the HTML pages`
 
 ## Usage
-There are multiple way in which the project can be run. The program supports multiple CLI arguments that both affect what underlying module is used to compute the Navier Stokes and choosing what which parameters to vary.
+There are multiple ways in which this project can be run. The program supports multiple CLI arguments that both affect what underlying module is used to compute the Navier Stokes and choosing what parameters to vary.
 
-The default setting (no CLI arguments) for the code will vary the variables N (spatial resolution), dt (timestep) and nu (viscosity) and the underlying module will be Pytorch. To run this configuration use the following command:
+The default setting (no CLI arguments) for the code will vary the variables **N** (spatial resolution), **dt** (timestep) and **nu** (viscosity) and the underlying module will be `Pytorch`. To run this configuration use the following command:
 ```bash
-$ python3 execution_perf.py
+python3 execution_perf.py
 ```
 
 <a id="choose-module"></a>
@@ -65,34 +65,34 @@ There are three options to choose from. Pytorch (GPU), Cupy (GPU) and Numpy (CPU
 #### Pytorch
 * With Make
    ```bash
-    $ make pytorch
+    make pytorch
     ```
 
 * Without Make
    ```bash
-    $ python3 execution_perf.py  pytorch
+    python3 execution_perf.py  pytorch
     ```
 
 #### Cupy
 * With Make
    ```bash
-    $ make cupy
+    make cupy
     ```
 
 * Without Make
    ```bash
-    $ python3 execution_perf.py  cupy
+    python3 execution_perf.py  cupy
     ```
 
 #### Numpy
 * With Make
    ```bash
-    $ make numpy
+    make numpy
     ```
 
 * Without Make
    ```bash
-    $ python3 execution_perf.py  numpy
+    python3 execution_perf.py  numpy
     ```
 
 ### Choosing what parameter to vary
@@ -102,21 +102,21 @@ The syntax for specifying which parameters are to varied is as follows:
 ***
 `param1`, `param2`, `param3`: These arguments are optional. They can each take one of the following values: `res`, `dt`, `nu`.
 ```bash
-$ python3 execution_perf.py [param1] [param2] [param3]
+python3 execution_perf.py [param1] [param2] [param3]
 ```
 
 Here's an example of how you can run the program with different combinations of arguments:
 
 ```bash
-$ python3 run.py res
-$ python3 run.py dt res
-$ python3 run.py nu dt res
+python3 run.py res
+python3 run.py dt res
+python3 run.py nu dt res
 ```
 
 There are some make commands provided for varying `res`, `dt` and `nu`individually.
 
 ```bash
-$ make res
-$ make dt
-$ make nu
+make res
+make dt
+make nu
 ```
