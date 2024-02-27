@@ -2,7 +2,9 @@ import sys
 import numpy as np
 sys.path.append('../') 
 import Orgin_navier_stokes_spectral as original_nss
-class TestFluidDynamicsSolversNumpy():
+class FluidDynamicsSolversNumpy():
+    """A class for the init state of fluid dynamics solvers focusing on numpy-based implementations.
+    """
     N = 64
     dx = 2.0 * np.pi / N
     k = np.fft.fftfreq(N, d=dx)
