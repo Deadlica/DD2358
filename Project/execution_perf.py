@@ -89,6 +89,7 @@ def get_min(times: list):
         mins.append(min(times[i * ITERS : i * ITERS + ITERS]))
     return mins
 
+
 def get_max(times: list):
     """
     Computes the maximum time for each size. The number of

@@ -32,37 +32,44 @@ class TestFluidDynamicsSolvers(unittest.TestCase):
         self.dvy_x, self.dvy_y = nss.grad(self.vy, self.kx, self.ky)
         self.rhs_x = -(self.vx * self.dvx_x + self.vy * self.dvx_y)
         self.rhs_y = -(self.vx * self.dvy_x + self.vy * self.dvy_y)
-        self.rhs_x = nss.apply_dealias(self.rhs_x, self.dealias)
-        self.rhs_y = nss.apply_dealias(self.rhs_y, self.dealias)
         self.div_rhs = nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
         self.P=nss.poisson_solve( self.div_rhs, self.kSq_inv )
-        self.vx += self.dt * self.rhs_x
-        self.vy += self.dt * self.rhs_y
+        #create numpy class
         self.numpy_data = test_numpy.TestFluidDynamicsSolversNumpy()
 
+        # Both rho's are random, we make them the same to ensure
+        # test_poisson_solve works
+        for i in range(len(self.rho)):
+            for j in range(len(self.rho[i])):
+                self.numpy_data.rho[i][j] = self.rho[i][j]
+    
+
     def test_poisson_solve(self):
-        
-        expected_ans = test_pytorch.original_nss.poisson_solve(self.numpy_data.rho, self.numpy_data.kSq_inv)
-        optimized_ans = nss.poisson_solve(self.rho, cp.asnumpyself.kSq_inv)
+        expected_ans = test_numpy.original_nss.poisson_solve(self.numpy_data.rho, self.numpy_data.kSq_inv)
+        optimized_ans = nss.poisson_solve(self.rho, self.kSq_inv)
         self.assertTrue(cp.allclose(expected_ans, optimized_ans))
 
+
     def test_diffusion_solve(self):
-        expected_ans = test_pytorch.original_nss.diffusion_solve(self.numpy_data.vx, self.numpy_data.dt, self.numpy_data.nu, self.numpy_data.kSq)
+        expected_ans = test_numpy.original_nss.diffusion_solve(self.numpy_data.vx, self.numpy_data.dt, self.numpy_data.nu, self.numpy_data.kSq)
         optimized_ans = nss.diffusion_solve(self.vx, self.dt, self.nu, self.kSq)
         self.assertTrue(cp.allclose(expected_ans, optimized_ans))
 
+
     def test_curl_solve(self):
-        expected_ans = test_pytorch.original_nss.curl(self.numpy_data.vx, self.numpy_data.vy, self.numpy_data.kx, self.numpy_data.ky)
+        expected_ans = test_numpy.original_nss.curl(self.numpy_data.vx, self.numpy_data.vy, self.numpy_data.kx, self.numpy_data.ky)
         optimized_ans = nss.curl(self.vx, self.vy, self.kx, self.ky)
         self.assertTrue(cp.allclose(expected_ans, optimized_ans))
 
+
     def test_div_solve(self):
-            expected_ans = test_pytorch.original_nss.div(self.numpy_data.rhs_x, self.numpy_data.rhs_y, self.numpy_data.kx, self.numpy_data.ky)
+            expected_ans = test_numpy.original_nss.div(self.numpy_data.rhs_x, self.numpy_data.rhs_y, self.numpy_data.kx, self.numpy_data.ky)
             optimized_ans = nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
             self.assertTrue(cp.allclose(expected_ans, optimized_ans))
 
+
     def test_grad_solve(self):
-            expected_ans = test_pytorch.original_nss.grad(self.numpy_data.P, self.numpy_data.kx, self.numpy_data.ky)
+            expected_ans = test_numpy.original_nss.grad(self.numpy_data.P, self.numpy_data.kx, self.numpy_data.ky)
             optimized_ans = nss.grad(self.P, self.kx, self.ky)
             self.assertTrue(cp.allclose(expected_ans, optimized_ans))
 

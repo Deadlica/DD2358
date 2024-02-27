@@ -39,26 +39,28 @@ class TestFluidDynamicsSolvers(unittest.TestCase):
         self.vy += self.dt * self.rhs_y
 
     def test_poisson_solve(self):
-        
         expected_ans = original_nss.poisson_solve(self.rho, self.kSq_inv)
-        #print(expected_ans)
         optimized_ans = nss.poisson_solve(tp.from_numpy(self.rho), tp.from_numpy(self.kSq_inv))
         self.assertTrue(np.allclose(expected_ans, optimized_ans))
+
 
     def test_diffusion_solve(self):
         expected_ans = original_nss.diffusion_solve(self.vx, self.dt, self.nu, self.kSq)
         optimized_ans = nss.diffusion_solve(tp.from_numpy(self.vx), self.dt, self.nu, self.kSq)
         self.assertTrue(np.allclose(expected_ans, optimized_ans))
 
+
     def test_curl_solve(self):
         expected_ans = original_nss.curl(self.vx, self.vy, self.kx, self.ky)
         optimized_ans = nss.curl(tp.from_numpy(self.vx), tp.from_numpy(self.vy), tp.from_numpy(self.kx), tp.from_numpy(self.ky))
         self.assertTrue(np.allclose(expected_ans, optimized_ans))
 
+
     def test_div_solve(self):
             expected_ans = original_nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
             optimized_ans = nss.div(tp.from_numpy(self.rhs_x), tp.from_numpy(self.rhs_y), tp.from_numpy(self.kx), tp.from_numpy(self.ky))
             self.assertTrue(np.allclose(expected_ans, optimized_ans))
+
 
     def test_grad_solve(self):
             expected_ans = original_nss.grad(self.P, self.kx, self.ky)
