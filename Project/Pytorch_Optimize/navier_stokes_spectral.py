@@ -14,6 +14,7 @@ div(v) = 0
 
 
 def poisson_solve(rho, kSq_inv):
+	""" solve the Poisson equation, given source field rho """
 	V_hat = -(pt.fft.fftn( rho )) * kSq_inv
 	V = pt.real(pt.fft.ifftn(V_hat))
 	return V
