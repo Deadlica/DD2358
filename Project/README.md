@@ -7,8 +7,8 @@
 
 <br />
 
-![pull](https://img.shields.io/github/issues-pr/deadlica/continuous-integration)
-![issues](https://img.shields.io/github/issues/deadlica/continuous-integration)
+![pull](https://img.shields.io/github/issues-pr/deadlica/DD2358)
+![issues](https://img.shields.io/github/issues/deadlica/DD2358)
 ![coverage](https://img.shields.io/codecov/c/github/deadlica/DD2358)
 ![language](https://img.shields.io/github/languages/top/deadlica/DD2358)
 
