@@ -1,11 +1,11 @@
-import test_numpy 
-
-import unittest
 import sys
+sys.path.append("./") 
+sys.path.append("../") 
+import test_numpy 
+import unittest
 import cupy as cp
-
-sys.path.append('../') 
 import Cupy_Optimize.navier_stokes_spectral as nss
+
 class TestFluidDynamicsSolvers(unittest.TestCase):
     """
     This class tests the functionality and accuracy of fluid dynamics solvers,
@@ -43,7 +43,7 @@ class TestFluidDynamicsSolvers(unittest.TestCase):
         self.div_rhs = nss.div(self.rhs_x, self.rhs_y, self.kx, self.ky)
         self.P=nss.poisson_solve( self.div_rhs, self.kSq_inv )
         #create numpy class
-        self.numpy_data = test_numpy.TestFluidDynamicsSolversNumpy()
+        self.numpy_data = test_numpy.FluidDynamicsSolversNumpy()
 
         # Both rho's are random, we make them the same to ensure
         # test_poisson_solve works

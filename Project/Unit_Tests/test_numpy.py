@@ -1,7 +1,9 @@
 import sys
+sys.path.append("./") 
+sys.path.append("../") 
 import numpy as np
-sys.path.append('../') 
-import Orgin_navier_stokes_spectral as original_nss
+import navier_stokes_spectral as original_nss
+
 class FluidDynamicsSolversNumpy():
     """A class for the init state of fluid dynamics solvers focusing on numpy-based implementations.
     """

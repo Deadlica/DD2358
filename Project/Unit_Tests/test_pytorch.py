@@ -1,12 +1,13 @@
 import unittest
 import sys
+sys.path.append("./") 
+sys.path.append("../") 
 import test_numpy 
-
 import torch as tp
 import numpy as np
-sys.path.append('../') 
 import Pytorch_Optimize.navier_stokes_spectral as nss
-import Orgin_navier_stokes_spectral as original_nss
+import navier_stokes_spectral as original_nss
+
 class TestFluidDynamicsSolvers(unittest.TestCase):
     """
     This class tests the functionality and accuracy of fluid dynamics solvers,
@@ -18,7 +19,7 @@ class TestFluidDynamicsSolvers(unittest.TestCase):
         Set up the test environment before each test method is executed.
         Initializes spatial domain parameters, wave numbers, viscosity, time step, and initial conditions.
         """
-        self.numpy_data = test_numpy.TestFluidDynamicsSolversNumpy()
+        self.numpy_data = test_numpy.FluidDynamicsSolversNumpy()
 
         
 

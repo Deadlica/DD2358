@@ -3,7 +3,8 @@ import sys
 import numpy as np
 sys.path.append('../') 
 import Cython_Optimize.navier_stokes_spectral as nss
-import Orgin_navier_stokes_spectral as original_nss
+import navier_stokes_spectral as original_nss
+
 class TestFluidDynamicsSolvers(unittest.TestCase):
 
     def setUp(self):
