@@ -4,19 +4,25 @@ import sys
 import statistics as stat
 from timeit import default_timer as timer
 
+param_name = {
+    "N" : "Spatial Resolution",
+    "dt" : "Timestep",
+}
 
 # Default module to run navier stokes with
-module_path = "Pytorch_Optimize.navier_stokes_spectral"
+modules = {
+    "numpy" : "navier_stokes_spectral",
+    "algorithmic" : "Algorithmic_Optimize.navier_stokes_spectral",
+    "cupy" : "Cupy_Optimize.navier_stokes_spectral",
+    "pytorch" : "Pytorch_Optimize.navier_stokes_spectral",
+}
 nss = ""
+
+graphs = {}
 
 # Iterations per variable size
 ITERS = 5
 
-param_name = {
-    "N" : "Spatial Resolution",
-    "dt" : "Timestep",
-    "nu" : "Viscosity",
-}
 
 def get_measurements(param: str, args: list):
     """
@@ -103,7 +109,7 @@ def get_max(times: list):
     return maxs
 
 
-def plot(x: list, y: list, std: list, param: str):
+def plot(x: list, y: list, std: list, param: str, module: str):
     """
     Plots a graph of execution time with varying a variable in
     navier stokes spectral and with standard deviation applied.
@@ -113,11 +119,13 @@ def plot(x: list, y: list, std: list, param: str):
     :param param: the varying parameter used
     :return: None
     """
-    plt.figure()
+    if param not in graphs:
+        plt.figure()
     plt.title("Varying parameter: " + param_name[param])
-    plt.plot(x, y, label=param)
-    plt.errorbar(x, y, yerr=std, fmt="o", label="Standard Deviation")
-    plt.ylabel("Time (s)")
+    plt.plot(x, y, label=module)
+    plt.yscale("log")
+    plt.errorbar(x, y, yerr=std, fmt="o", label=module + " std")
+    plt.ylabel("Time (log(s))")
     plt.xlabel(param_name[param] + " (" + param + ")")
     plt.legend(loc="best")
 
@@ -128,64 +136,45 @@ if __name__ == "__main__":
     arg_vals = {}
     arg_vals["N"]  = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
     arg_vals["dt"] = [0.001, 0.002, 0.003, 0.004, 0.005 , 0.006, 0.007, 0.008, 0.009, 0.01]
-    arg_vals["nu"] = [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
 
     args_done = False
 
     # Default run mode, vary all parameters
     if len(sys.argv) == 1:
-        cli_args = ["N", "dt", "nu"]
+        cli_args = ["N", "dt"]
         args_done = True
     # Too many arguments provided
-    elif len(sys.argv) > 4:
-        print("Excessive number of arguments, please provide at most three.")
+    elif len(sys.argv) > 3:
+        print("Excessive number of arguments, please provide at most two.")
         exit(0)
-    # Check if module argument was provided
-    # If it was, then vary all parameters with the selected module
-    elif len(sys.argv) == 2:
-        match sys.argv[1]:
-            case "numpy":
-                module_path = "navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
-                args_done = True
-            case "cupy":
-                module_path = "Cupy_Optimize.navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
-                args_done = True
-            case "pytorch":
-                module_path = "Pytorch_Optimize.navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
-                args_done = True
 
-    # Module argument was not provided
-    # Default module is Pytorch if none was provided
-    # Checking if varied parameter argument was given
-    # 1-3 variable parameters are allowed as arguments
+    # parse arguments
+    # 1-2 variable parameters are allowed as arguments
     if not args_done:
         for i in range(1, len(sys.argv)):
             match sys.argv[i]:
-                case "res":
-                    cli_args.append("N")
-                case "time":
-                    cli_args.append("dt")
-                case "visc":
-                    cli_args.append("nu")
+                case "N":
+                    cli_args.append(sys.argv[i])
+                case "dt":
+                    cli_args.append(sys.argv[i])
                 case _:
-                    print("Please provide valid argument! [res/time/visc] || [default/cupy/pytorch]")
+                    print("Please provide valid argument! [N/dt]")
                     exit(0)
         
-    # Setting module
-    nss = importlib.import_module(module_path)
 
     avg, std, minimum, maximum = {}, {}, {}, {}
-    
+
     # Main loop
     for param in cli_args:
-        times = get_measurements(param, arg_vals[param])
-        avg[param] = get_avg(times)
-        std[param] = get_std(times)
-        minimum[param] = get_min(times)
-        maximum[param] = get_max(times)
-        plot(arg_vals[param], avg[param], std[param], param)
+        for module, path in modules.items():
+            # Setting module
+            nss = importlib.import_module(path)
+            times = get_measurements(param, arg_vals[param])
+            avg[param] = get_avg(times)
+            std[param] = get_std(times)
+            minimum[param] = get_min(times)
+            maximum[param] = get_max(times)
+            plot(arg_vals[param], avg[param], std[param], param, module)
+            graphs.update({param : True})
         
     plt.show()
