@@ -4,7 +4,7 @@ sys.path.append("../")
 import test_numpy 
 import unittest
 import cupy as cp
-import Cupy_Optimize.navier_stokes_spectral as nss
+import Cupy_Optimize.cupy_navier_stokes_spectral as nss
 
 class TestFluidDynamicsSolvers(unittest.TestCase):
     """

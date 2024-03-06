@@ -12,9 +12,9 @@ param_name = {
 # Default module to run navier stokes with
 modules = {
     "numpy" : "navier_stokes_spectral",
-    "algorithmic" : "Algorithmic_Optimize.navier_stokes_spectral",
-    "cupy" : "Cupy_Optimize.navier_stokes_spectral",
-    "pytorch" : "Pytorch_Optimize.navier_stokes_spectral",
+    "algorithmic" : "Algorithmic_Optimize.algorithmic_navier_stokes_spectral",
+    "cupy" : "Cupy_Optimize.cupy_navier_stokes_spectral",
+    "pytorch" : "Pytorch_Optimize.pytorch_navier_stokes_spectral",
 }
 nss = ""
 
@@ -116,6 +116,7 @@ def plot(x: list, y: list, std: list, param: str, module: str):
     :param x: the size values used for the varying parameter
     :param y: the execution times of navier stokes spectral
     :param std: the standard devations of the execution times
+    :param module: the module used to compute the navier stokes
     :param param: the varying parameter used
     :return: None
     """
@@ -154,11 +155,11 @@ if __name__ == "__main__":
         for i in range(1, len(sys.argv)):
             match sys.argv[i]:
                 case "res":
-                    cli_args.append(sys.argv[i])
+                    cli_args.append("N")
                 case "time":
-                    cli_args.append(sys.argv[i])
+                    cli_args.append("dt")
                 case _:
-                    print("Please provide valid argument! [N/dt]")
+                    print("Please provide valid argument! [res/time]")
                     exit(0)
         
 

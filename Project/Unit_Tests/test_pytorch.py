@@ -5,7 +5,7 @@ sys.path.append("../")
 import test_numpy 
 import torch as tp
 import numpy as np
-import Pytorch_Optimize.navier_stokes_spectral as nss
+import Pytorch_Optimize.pytorch_navier_stokes_spectral as nss
 import navier_stokes_spectral as original_nss
 
 class TestFluidDynamicsSolvers(unittest.TestCase):

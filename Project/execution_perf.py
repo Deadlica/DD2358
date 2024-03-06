@@ -6,7 +6,7 @@ from timeit import default_timer as timer
 
 
 # Default module to run navier stokes with
-module_path = "Pytorch_Optimize.navier_stokes_spectral"
+module_path = "Pytorch_Optimize.pytorch_navier_stokes_spectral"
 nss = ""
 
 # Iterations per variable size
@@ -144,15 +144,15 @@ if __name__ == "__main__":
                 cli_args = ["N", "dt"]
                 args_done = True
             case "algo":
-                module_path = "Algorithmic_Optimize.navier_stokes_spectral"
+                module_path = "Algorithmic_Optimize.algorithmic_navier_stokes_spectral"
                 cli_args = ["N", "dt"]
                 args_done = True
             case "cupy":
-                module_path = "Cupy_Optimize.navier_stokes_spectral"
+                module_path = "Cupy_Optimize.cupy_navier_stokes_spectral"
                 cli_args = ["N", "dt"]
                 args_done = True
             case "pytorch":
-                module_path = "Pytorch_Optimize.navier_stokes_spectral"
+                module_path = "Pytorch_Optimize.pytorch_navier_stokes_spectral"
                 cli_args = ["N", "dt"]
                 args_done = True
 
