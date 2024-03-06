@@ -33,5 +33,8 @@ requirements:
 
 .PHONY: docs
 
-docs:
-	cd docs && make html
+generate:
+	sphinx-apidoc -o doc ./ && sphinx-apidoc -o doc Algorithmic_Optimize/ && sphinx-apidoc -o doc Cupy_Optimize/ && sphinx-apidoc -o doc Pytorch_Optimize/
+
+docs: generate
+	cd doc && make html
