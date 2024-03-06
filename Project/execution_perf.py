@@ -15,7 +15,6 @@ ITERS = 5
 param_name = {
     "N" : "Spatial Resolution",
     "dt" : "Timestep",
-    "nu" : "Viscosity",
 }
 
 def get_measurements(param: str, args: list):
@@ -38,9 +37,6 @@ def get_measurements(param: str, args: list):
                 case "dt":
                     start = timer()
                     nss.main(dt=val)
-                case "nu":
-                    start = timer()
-                    nss.main(nu=val)
                 case _:
                     return
             times.append(timer() - start)
@@ -128,16 +124,15 @@ if __name__ == "__main__":
     arg_vals = {}
     arg_vals["N"]  = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
     arg_vals["dt"] = [0.001, 0.002, 0.003, 0.004, 0.005 , 0.006, 0.007, 0.008, 0.009, 0.01]
-    arg_vals["nu"] = [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
 
     args_done = False
 
     # Default run mode, vary all parameters
     if len(sys.argv) == 1:
-        cli_args = ["N", "dt", "nu"]
+        cli_args = ["N", "dt"]
         args_done = True
     # Too many arguments provided
-    elif len(sys.argv) > 4:
+    elif len(sys.argv) > 3:
         print("Excessive number of arguments, please provide at most three.")
         exit(0)
     # Check if module argument was provided
@@ -146,15 +141,19 @@ if __name__ == "__main__":
         match sys.argv[1]:
             case "numpy":
                 module_path = "navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
+                cli_args = ["N", "dt"]
+                args_done = True
+            case "algo":
+                module_path = "Algorithmic_Optimize.navier_stokes_spectral"
+                cli_args = ["N", "dt"]
                 args_done = True
             case "cupy":
                 module_path = "Cupy_Optimize.navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
+                cli_args = ["N", "dt"]
                 args_done = True
             case "pytorch":
                 module_path = "Pytorch_Optimize.navier_stokes_spectral"
-                cli_args = ["N", "dt", "nu"]
+                cli_args = ["N", "dt"]
                 args_done = True
 
     # Module argument was not provided
@@ -168,10 +167,8 @@ if __name__ == "__main__":
                     cli_args.append("N")
                 case "time":
                     cli_args.append("dt")
-                case "visc":
-                    cli_args.append("nu")
                 case _:
-                    print("Please provide valid argument! [res/time/visc] || [default/cupy/pytorch]")
+                    print("Please provide valid argument! [res/time] || [numpy/algo/cupy/pytorch]")
                     exit(0)
         
     # Setting module

@@ -7,14 +7,26 @@ cupy:
 pytorch:
 	python3 execution_perf.py pytorch
 
+algo:
+	python3 execution_perf.py algo
+
 res:
 	python3 execution_perf res
 
-dt:
-	python3 execution_perf dt
+time:
+	python3 execution_perf time
 
-nu:
-	python3 execution_perf nu
+comp:
+	python3 compare_execution_perf.py
+
+make comp_res:
+	python3 compare_execution_perf.py res
+
+make comp_time:
+	python3 compare_execution_perf.py time
+
+test:
+	pytest Unit_Tests/test_cupy.py && pytest Unit_Tests/test_pytorch.py
 
 requirements:
 	pip install -r requirements.txt

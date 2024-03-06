@@ -153,9 +153,9 @@ if __name__ == "__main__":
     if not args_done:
         for i in range(1, len(sys.argv)):
             match sys.argv[i]:
-                case "N":
+                case "res":
                     cli_args.append(sys.argv[i])
-                case "dt":
+                case "time":
                     cli_args.append(sys.argv[i])
                 case _:
                     print("Please provide valid argument! [N/dt]")
