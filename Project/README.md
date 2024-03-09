@@ -13,7 +13,7 @@
 ![language](https://img.shields.io/github/languages/top/deadlica/DD2358)
 
 ## Introduction
-This repository provides two GPU-based optimizations for Philip Mocz's simulation of the Navier-Stokes equations, the movement of fluid, specifically for an incompressible viscous fluid, using a spectral method. These optimizations are `Cupy`, a library for GPU-accelerated computing, and `Pytorch`, a package which provides Tensor computation also with GPU-accelerated computing. Philips Mocz's repository can be found [here](https://github.com/pmocz/navier-stokes-spectral-python).
+This repository provides two CPU-based, two GPU-based optimizations for Philip Mocz's simulation of the Navier-Stokes equations, the movement of fluid, specifically for an incompressible viscous fluid, using a spectral method. These optimizations are `Cython`, a python module allowing integration compiled C-like code to speed up python programs, `Algorithmic`, an optmization on the source code which adresses some of the flaws noted by the original author, `Cupy`, a library for GPU-accelerated computing, and `Pytorch`, a package which provides Tensor computation also with GPU-accelerated computing. Philips Mocz's repository can be found [here](https://github.com/pmocz/navier-stokes-spectral-python).
 
 The program `execution_perf.py` plots the performance differences of the optimizations. These analyses show the execution time of the various implementations [Cupy, Pytorch, Algorithmic and non-optimized], whilst varying the values of certain parameters, those parameters being: **N**, the spatial resolution, **dt**, the time-step.
 
@@ -76,7 +76,7 @@ python3 execution_perf.py
 
 <a id="choose-module"></a>
 ### Choosing module for computation
-There are three options to choose from. Pytorch (GPU), Cupy (GPU) and Numpy (CPU). The following commands show you have to run each of the modules respectively.
+There are four options to choose from. Pytorch (GPU), Cupy (GPU), Algorithmic (CPU) and Numpy (CPU). The following commands show you have to run each of the modules respectively.
 
 #### Pytorch
 * With Make
