@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>compare_execution_perf module &mdash; Navier Stokes Spectral Optimization 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="execution_perf module" href="execution_perf.html" />
+    <link rel="prev" title="Project" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Navier Stokes Spectral Optimization
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Project</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">compare_execution_perf module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.get_avg"><code class="docutils literal notranslate"><span class="pre">get_avg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.get_max"><code class="docutils literal notranslate"><span class="pre">get_max()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.get_measurements"><code class="docutils literal notranslate"><span class="pre">get_measurements()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.get_min"><code class="docutils literal notranslate"><span class="pre">get_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.get_std"><code class="docutils literal notranslate"><span class="pre">get_std()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compare_execution_perf.plot"><code class="docutils literal notranslate"><span class="pre">plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="execution_perf.html">execution_perf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="navier_stokes_spectral.html">navier_stokes_spectral module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithmic_navier_stokes_spectral.html">algorithmic_navier_stokes_spectral module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cupy_navier_stokes_spectral.html">cupy_navier_stokes_spectral module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pytorch_navier_stokes_spectral.html">pytorch_navier_stokes_spectral module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Navier Stokes Spectral Optimization</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">Project</a></li>
+      <li class="breadcrumb-item active">compare_execution_perf module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/compare_execution_perf.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-compare_execution_perf">
+<span id="compare-execution-perf-module"></span><h1>compare_execution_perf module<a class="headerlink" href="#module-compare_execution_perf" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.get_avg">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">get_avg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#get_avg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.get_avg" title="Link to this definition"></a></dt>
+<dd><p>Computes the average time for each size. The number of
+values per size is the same as <cite>ITERS</cite>
+:param times: list of all time measurements. The size of
+<cite>times</cite> needs to be <cite>len(args) * ITERS</cite>
+:return: list of time averages</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.get_max">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">get_max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#get_max"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.get_max" title="Link to this definition"></a></dt>
+<dd><p>Computes the maximum time for each size. The number of
+values per size is the same as <cite>ITERS</cite>
+:param times: list of all time measurements. The size of
+<cite>times</cite> needs to be <cite>len(args) * ITERS</cite>
+:return: list of the maximum time for each size</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.get_measurements">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">get_measurements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#get_measurements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.get_measurements" title="Link to this definition"></a></dt>
+<dd><p>Computes and measures the execution time of the navier stokes spectral
+while varying <cite>param</cite> with the values in <cite>args</cite>
+:param param: the parameter to be varied in the navier stokes
+spectral function
+:param args: the values that <cite>param</cite> will use for its iterations
+:return: a list of all time measurements</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.get_min">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">get_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#get_min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.get_min" title="Link to this definition"></a></dt>
+<dd><p>Computes the minimum time for each size. The number of
+values per size is the same as <cite>ITERS</cite>
+:param times: list of all time measurements. The size of
+<cite>times</cite> needs to be <cite>len(args) * ITERS</cite>
+:return: list of the minimum time for each size</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.get_std">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">get_std</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#get_std"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.get_std" title="Link to this definition"></a></dt>
+<dd><p>Computes the standard deviation for each size.
+The number of values per size is the same as <cite>ITERS</cite>
+:param times: list of all time measurements. The size of
+<cite>times</cite> needs to be <cite>len(args) * ITERS</cite>
+:return: list of standard devations</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="compare_execution_perf.plot">
+<span class="sig-prename descclassname"><span class="pre">compare_execution_perf.</span></span><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/compare_execution_perf.html#plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compare_execution_perf.plot" title="Link to this definition"></a></dt>
+<dd><p>Plots a graph of execution time with varying a variable in
+navier stokes spectral and with standard deviation applied.
+:param x: the size values used for the varying parameter
+:param y: the execution times of navier stokes spectral
+:param std: the standard devations of the execution times
+:param module: the module used to compute the navier stokes
+:param param: the varying parameter used
+:return: None</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="execution_perf.html" class="btn btn-neutral float-right" title="execution_perf module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Samuel Greenberg, Can Kupeli, Marcus Jakobsson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

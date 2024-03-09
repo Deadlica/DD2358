@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>compare_execution_perf &mdash; Navier Stokes Spectral Optimization 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Navier Stokes Spectral Optimization
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Navier Stokes Spectral Optimization</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">compare_execution_perf</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for compare_execution_perf</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">statistics</span> <span class="k">as</span> <span class="nn">stat</span>
+<span class="kn">from</span> <span class="nn">timeit</span> <span class="kn">import</span> <span class="n">default_timer</span> <span class="k">as</span> <span class="n">timer</span>
+
+<span class="n">param_name</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;N&quot;</span> <span class="p">:</span> <span class="s2">&quot;Spatial Resolution&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dt&quot;</span> <span class="p">:</span> <span class="s2">&quot;Timestep&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Default module to run navier stokes with</span>
+<span class="n">modules</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;numpy&quot;</span> <span class="p">:</span> <span class="s2">&quot;navier_stokes_spectral&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;algorithmic&quot;</span> <span class="p">:</span> <span class="s2">&quot;Algorithmic_Optimize.algorithmic_navier_stokes_spectral&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cupy&quot;</span> <span class="p">:</span> <span class="s2">&quot;Cupy_Optimize.cupy_navier_stokes_spectral&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pytorch&quot;</span> <span class="p">:</span> <span class="s2">&quot;Pytorch_Optimize.pytorch_navier_stokes_spectral&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">nss</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<span class="n">graphs</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># Iterations per variable size</span>
+<span class="n">ITERS</span> <span class="o">=</span> <span class="mi">5</span>
+
+
+<div class="viewcode-block" id="get_measurements">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.get_measurements">[docs]</a>
+<span class="k">def</span> <span class="nf">get_measurements</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes and measures the execution time of the navier stokes spectral</span>
+<span class="sd">    while varying `param` with the values in `args`</span>
+<span class="sd">    :param param: the parameter to be varied in the navier stokes</span>
+<span class="sd">    spectral function</span>
+<span class="sd">    :param args: the values that `param` will use for its iterations</span>
+<span class="sd">    :return: a list of all time measurements</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ITERS</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">match</span> <span class="n">param</span><span class="p">:</span>
+                <span class="k">case</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+                    <span class="n">nss</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;dt&quot;</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+                    <span class="n">nss</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;nu&quot;</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">timer</span><span class="p">()</span>
+                    <span class="n">nss</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">nu</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                    <span class="k">return</span>
+            <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">timer</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">times</span></div>
+
+
+
+<div class="viewcode-block" id="get_avg">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.get_avg">[docs]</a>
+<span class="k">def</span> <span class="nf">get_avg</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the average time for each size. The number of</span>
+<span class="sd">    values per size is the same as `ITERS`</span>
+<span class="sd">    :param times: list of all time measurements. The size of</span>
+<span class="sd">    `times` needs to be `len(args) * ITERS`</span>
+<span class="sd">    :return: list of time averages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">averages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">/</span> <span class="n">ITERS</span><span class="p">)):</span>
+        <span class="n">averages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="o">+</span> <span class="n">ITERS</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">averages</span></div>
+
+
+
+<div class="viewcode-block" id="get_std">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.get_std">[docs]</a>
+<span class="k">def</span> <span class="nf">get_std</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the standard deviation for each size.</span>
+<span class="sd">    The number of values per size is the same as `ITERS`</span>
+<span class="sd">    :param times: list of all time measurements. The size of</span>
+<span class="sd">    `times` needs to be `len(args) * ITERS`</span>
+<span class="sd">    :return: list of standard devations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">/</span> <span class="n">ITERS</span><span class="p">)):</span>
+        <span class="n">stds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="o">+</span> <span class="n">ITERS</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">stds</span></div>
+
+
+
+<div class="viewcode-block" id="get_min">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.get_min">[docs]</a>
+<span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the minimum time for each size. The number of</span>
+<span class="sd">    values per size is the same as `ITERS`</span>
+<span class="sd">    :param times: list of all time measurements. The size of</span>
+<span class="sd">    `times` needs to be `len(args) * ITERS`</span>
+<span class="sd">    :return: list of the minimum time for each size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mins</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">/</span> <span class="n">ITERS</span><span class="p">)):</span>
+        <span class="n">mins</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="o">+</span> <span class="n">ITERS</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">mins</span></div>
+
+
+
+<div class="viewcode-block" id="get_max">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.get_max">[docs]</a>
+<span class="k">def</span> <span class="nf">get_max</span><span class="p">(</span><span class="n">times</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the maximum time for each size. The number of</span>
+<span class="sd">    values per size is the same as `ITERS`</span>
+<span class="sd">    :param times: list of all time measurements. The size of</span>
+<span class="sd">    `times` needs to be `len(args) * ITERS`</span>
+<span class="sd">    :return: list of the maximum time for each size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">maxs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">/</span> <span class="n">ITERS</span><span class="p">)):</span>
+        <span class="n">maxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="n">ITERS</span> <span class="o">+</span> <span class="n">ITERS</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">maxs</span></div>
+
+
+
+<div class="viewcode-block" id="plot">
+<a class="viewcode-back" href="../compare_execution_perf.html#compare_execution_perf.plot">[docs]</a>
+<span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">std</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots a graph of execution time with varying a variable in</span>
+<span class="sd">    navier stokes spectral and with standard deviation applied.</span>
+<span class="sd">    :param x: the size values used for the varying parameter</span>
+<span class="sd">    :param y: the execution times of navier stokes spectral</span>
+<span class="sd">    :param std: the standard devations of the execution times</span>
+<span class="sd">    :param module: the module used to compute the navier stokes</span>
+<span class="sd">    :param param: the varying parameter used</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Varying parameter: &quot;</span> <span class="o">+</span> <span class="n">param_name</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">std</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">module</span> <span class="o">+</span> <span class="s2">&quot; std&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Time (log(s))&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">param_name</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="n">param</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Initializing variables</span>
+    <span class="n">cli_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">arg_vals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">arg_vals</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">700</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]</span>
+    <span class="n">arg_vals</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.003</span><span class="p">,</span> <span class="mf">0.004</span><span class="p">,</span> <span class="mf">0.005</span> <span class="p">,</span> <span class="mf">0.006</span><span class="p">,</span> <span class="mf">0.007</span><span class="p">,</span> <span class="mf">0.008</span><span class="p">,</span> <span class="mf">0.009</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+
+    <span class="n">args_done</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Default run mode, vary all parameters</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">cli_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;dt&quot;</span><span class="p">]</span>
+        <span class="n">args_done</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># Too many arguments provided</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Excessive number of arguments, please provide at most two.&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># parse arguments</span>
+    <span class="c1"># 1-2 variable parameters are allowed as arguments</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args_done</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)):</span>
+            <span class="k">match</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">case</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span>
+                    <span class="n">cli_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span>
+                    <span class="n">cli_args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">)</span>
+                <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please provide valid argument! [res/time]&quot;</span><span class="p">)</span>
+                    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        
+
+    <span class="n">avg</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">minimum</span><span class="p">,</span> <span class="n">maximum</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{},</span> <span class="p">{}</span>
+
+    <span class="c1"># Main loop</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">cli_args</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">module</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">modules</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Setting module</span>
+            <span class="n">nss</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="n">get_measurements</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">arg_vals</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+            <span class="n">avg</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_avg</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">std</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_std</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">minimum</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_min</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">maximum</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_max</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+            <span class="n">plot</span><span class="p">(</span><span class="n">arg_vals</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="n">avg</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="n">std</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="n">param</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+            <span class="n">graphs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">param</span> <span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+        
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Samuel Greenberg, Can Kupeli, Marcus Jakobsson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
